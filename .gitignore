@@ -1,12 +1,104 @@
-*.class
+package Hangman;
+import java.util.Scanner;
+import java.io.*;
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+ public class Game
+{
+    public static void main(String[] args) throws IOException
+   {
+      Scanner scan = new Scanner(System.in);
+      char again = 'n';
+      String theWord;
+      StringBuffer underscore;
+      final int MAXPARTS = 6;//the maximum number of wrong guesses allowed
+      int bodyparts;
+      
+      boolean done;//win or lose
+      String guess;//the letter guessed
+      String guesses;//all guesses
+      char letter;//correct guesses
+   	
+      Scanner wordFile = new Scanner(new FileReader("hangWords.txt"));//reads words in from file
+   
+      do {
+         theWord = wordFile.next();//calls next word in the text file
+         guesses = "";
+         done = false;//done represents weather or not the word is guessed correct
+         bodyparts = MAXPARTS;
+      
+         //makes dashes
+         underscore = makeDashes(theWord);
+        
+         while (! done)//Loops till done is true
+         {
+            System.out.println("Here is your word: " + underscore);
+            System.out.println("Letters guessed: " + guesses);
+            System.out.print("Guess (letter or word): ");
+            guess = scan.next();
+            
+         
+            if (guess.length() > 1)  //processes a full word guess
+            {
+               if (guess.equals(theWord))
+                  System.out.println("You win!");
+               else
+                  System.out.println("You lose");
+               done=true;
+            }
+            else //processes single letter guess
+            {
+               letter = guess.charAt(0);
+               guesses += letter;
+               if (theWord.indexOf(letter) < 0)  //not there
+               {	--bodyparts;//reduces body parts by 1
+                  System.out.print("Unlucky! ");
+               }
+               else //letter is in the secret
+               {
+               	//puts it in dashes where it belongs
+                  matchLetter(theWord, underscore, letter);                                   
+               }
+               System.out.println(bodyparts + " till hanged");
+               if (bodyparts == 0) //Game is lost as body parts equals 0
+               {	System.out.println("Hanged :(");
+                  done = true; //True is selected so a new game can be played
+               }
+               if (theWord.equals(underscore.toString()))
+               {	System.out.println("You win!");
+                  done = true;
+               }
+            } 
+         
+         } 
+      
+         if (wordFile.hasNext())//checks to see if there is another word in file
+         {
+            System.out.print("Would you like to play again (y/n)?: ");
+            again = scan.next().charAt(0);
+         }
+         else
+            System.out.println("Game over, no words left");
+      } while (wordFile.hasNext() && (again == 'Y' || again == 'y'));
+   } 
 
-# Package Files #
-*.jar
-*.war
-*.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+    /*Changes the dashes to matching the letter in the position. Goes from 0 to the length
+ 	at the position where the letter matches the corresponding letter in the word.*/
+    public static void matchLetter(String theWord, StringBuffer underscore, char letter)
+   {
+      for (int index = 0; index < theWord.length(); index++)
+         if (theWord.charAt(index) == letter)
+            underscore.setCharAt(index, letter);
+      System.out.print("Correct Letter Guessed!");
+   }
+
+    public static StringBuffer makeDashes(String s)
+   {
+      StringBuffer underscore = new StringBuffer(s.length());
+      for (int count=0; count < s.length(); count++)
+         underscore.append('_');
+      return underscore;
+   }
+	
+
+}
